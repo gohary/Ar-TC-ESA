@@ -2,7 +2,8 @@ package textanalysis.dbutils;
 
 import java.util.Map;
 
-import wikipedia.WikipediaConcept;
+import textanalysis.wikipediaindex.Article;
+
 import dataset.DatasetDocument;
 
 public class DBUtils {
@@ -11,11 +12,11 @@ public class DBUtils {
 
 	}
 
-	public WikipediaConcept getWikipediaConcept(int conceptId) {
+	public Article getWikipediaConcept(int conceptId) {
 		return null;
 	}
 
-	public void addWikipediaConcept(WikipediaConcept concept) {
+	public void addWikipediaConcept(Article concept) {
 	}
 
 	public Map<String, Float> getTermAnnotations(int docId, int method) {
