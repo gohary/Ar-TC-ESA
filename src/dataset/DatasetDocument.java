@@ -7,8 +7,16 @@ public class DatasetDocument {
 	private String category;
 	private String text;
 	private Datasets dataset;
-	private String indexName;
+
 	private int indexId;
+
+	public int getIndexId() {
+		return indexId;
+	}
+
+	public void setIndexId(int indexId) {
+		this.indexId = indexId;
+	}
 
 	public int getId() {
 		return id;
@@ -48,22 +56,6 @@ public class DatasetDocument {
 
 	public void setDataset(Datasets dataset) {
 		this.dataset = dataset;
-	}
-
-	public String getIndexName() {
-		return indexName;
-	}
-
-	public void setIndexName(String indexName) {
-		this.indexName = indexName;
-	}
-
-	public int getIndexId() {
-		return indexId;
-	}
-
-	public void setIndexId(int indexId) {
-		this.indexId = indexId;
 	}
 
 }

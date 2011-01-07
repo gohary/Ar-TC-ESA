@@ -29,7 +29,6 @@ public class Reader {
 	private IndexReader indexReader;
 	private IndexSearcher indexSearcher;
 	private QueryParser queryParser;
-	private String indexName;
 	private final int numDocs;
 
 	public Reader(String indexName) {
@@ -40,12 +39,15 @@ public class Reader {
 			indexSearcher = new IndexSearcher(directory);
 			queryParser = new QueryParser(Version.LUCENE_30, "text",
 					new ArabicAnalyzer(Version.LUCENE_30));
-			this.indexName = indexName;
 			numDocs = indexReader.numDocs();
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException();
 		}
+	}
+
+	public int getNumDocs() {
+		return this.numDocs;
 	}
 
 	public DatasetDocument getDocument(int id) throws CorruptIndexException,
@@ -55,7 +57,7 @@ public class Reader {
 		datasetDocument.setCategory(doc.get("category"));
 		datasetDocument.setText(doc.get("text"));
 		datasetDocument.setIndexId(id);
-		datasetDocument.setIndexName(indexName);
+
 		return datasetDocument;
 	}
 
@@ -67,11 +69,16 @@ public class Reader {
 		int sumDocFreqs = 0;
 		for (int i = 0; i < len; i++) {
 			String term = termFreqVector.getTerms()[i];
+			if (term.length() == 0)
+				continue;
 			int tf = termFreqVector.getTermFrequencies()[i];
 			sumDocFreqs += tf;
 			float idf = getIDF(term);
+			if (idf == -1)
+				continue;
 			featureVector.put(term, tf * idf);
 		}
+
 		for (Entry<String, Float> feature : featureVector.entrySet()) {
 			featureVector.put(feature.getKey(), feature.getValue()
 					/ sumDocFreqs);
@@ -80,10 +87,20 @@ public class Reader {
 		return featureVector;
 	}
 
+	/**
+	 * 
+	 * @param term
+	 * @return -1 if hits = 0 which means that the term is a stop word
+	 * @throws IOException
+	 * @throws ParseException
+	 */
 	private float getIDF(String term) throws IOException, ParseException {
 		term = QueryParser.escape(term);
 		int hits = indexSearcher.search(queryParser.parse(term), numDocs).totalHits;
-		return (float) Math.log10((float) numDocs / hits);
+		if (hits == 0)
+			return -1;
+		float idf = (float) Math.log10((float) numDocs / hits);
+		return idf;
 	}
 
 	public List<DatasetDocument> getCategoryDocuments(String category) {
@@ -104,10 +121,6 @@ public class Reader {
 			IOException, ParseException {
 		// testing
 		Reader r = new Reader("jordanian-light-lucene-stemmer");
-		Map<String, Float> ftrVector = r.getDocumentFeatureVector(50);
-
-		for (Entry<String, Float> ftr : ftrVector.entrySet()) {
-			System.out.println(ftr.getKey() + "\t" + ftr.getValue());
-		}
+		System.out.println(r.getDocument(25).getText());;
 	}
 }

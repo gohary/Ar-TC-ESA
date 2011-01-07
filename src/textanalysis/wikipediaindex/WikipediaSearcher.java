@@ -31,6 +31,7 @@ public class WikipediaSearcher {
 		try {
 			directory = FSDirectory.open(new File(
 					WikipediaIndexer.WIKIPEDIA_INDEX_PATH));
+
 			indexSearcher = new IndexSearcher(directory);
 			queryParser = new QueryParser(Version.LUCENE_30, "articleContent",
 					new ArabicAnalyzer(Version.LUCENE_30));
@@ -41,7 +42,13 @@ public class WikipediaSearcher {
 		}
 	}
 
+	/**
+	 * 
+	 * @param text
+	 * @return
+	 */
 	public List<Article> search(String text) {
+
 		List<Article> matchings = new ArrayList<Article>();
 
 		try {
@@ -73,8 +80,6 @@ public class WikipediaSearcher {
 			article.indexId = indexId;
 			article.name = doc.get("articleName");
 			article.url = doc.get("articleURL");
-			// article.content = doc.get("articleContent");
-			// TODO the tags & the content are not retrieved
 			return article;
 		} catch (CorruptIndexException e) {
 			e.printStackTrace();
@@ -100,7 +105,8 @@ public class WikipediaSearcher {
 		WikipediaSearcher searcher = new WikipediaSearcher();
 		List<Article> results = searcher.search(queryBuilder.toString());
 		for (Article art : results) {
-			System.out.println(art.name + "\t" + art.matchingScore+"\t"+art.indexId);
+			System.out.println(art.name + "\t" + art.matchingScore + "\t"
+					+ art.indexId);
 		}
 
 		/*

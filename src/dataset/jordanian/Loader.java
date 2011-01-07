@@ -9,17 +9,16 @@ import java.util.Map.Entry;
 import java.util.Scanner;
 
 import textanalysis.datasetindex.DatasetIndexer;
-import textanalysis.dbutils.DBUtils;
 import dataset.DatasetDocument;
 import dataset.Datasets;
+import dataset.Datasets_Methods;
 
 public class Loader {
-	final static String indexName = "jordanian-light-lucene-stemmer";
 
 	public static void main(String[] args) throws IOException, SQLException {
 
-		DatasetIndexer indexer = new DatasetIndexer(indexName);
-		DBUtils dbUtils = new DBUtils();
+		DatasetIndexer indexer = new DatasetIndexer(
+				Datasets_Methods.JORDANIAN_UMASS_LIGHT_STEMMER.indexName);
 
 		Map<String, String> categoryDocuments = new HashMap<String, String>();
 
@@ -61,15 +60,13 @@ public class Loader {
 			System.arraycopy(testDocs, 0, all, trainDocs.length,
 					testDocs.length);
 			for (File f : all) {
+
 				DatasetDocument doc = new DatasetDocument();
 				doc.setCategory(cat.getKey());
 				doc.setTitle(f.getName());
 				doc.setDataset(Datasets.JORDANIAN);
 				doc.setText(getFileContent(f));
-				doc.setIndexName(indexName);
-				doc.setIndexId(indexer.indexDocument(doc));
-				dbUtils.addDocument(doc);
-				System.out.println(doc.getTitle());
+				indexer.indexDocument(doc);
 			}
 		}
 

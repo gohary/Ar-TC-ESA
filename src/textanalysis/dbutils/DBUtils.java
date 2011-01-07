@@ -4,11 +4,16 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 
 import textanalysis.wikipediaindex.Article;
+import utils.Utils;
 
 import dataset.DatasetDocument;
 
@@ -44,38 +49,88 @@ public class DBUtils {
 		//
 		if (addDocStmt == null) {
 			addDocStmt = dbConnection
-					.prepareStatement("insert into document (title, dataset_id, category, index_name, index_id) values (?, ?, ?, ?, ?)");
+					.prepareStatement("insert into document (title, dataset_id, category) values (?, ?, ?)");
 		}
 		// title, dataset_id, category, index_name, index_id
 		addDocStmt.setString(1, doc.getTitle());
 		addDocStmt.setInt(2, doc.getDataset().datasetId);
 		addDocStmt.setString(3, doc.getCategory());
-		addDocStmt.setString(4, doc.getIndexName());
-		addDocStmt.setInt(5, doc.getIndexId());
 		addDocStmt.executeUpdate();
+	}
+
+	public List<Integer> getDatasetDocs(int datasetId) throws SQLException {
+		List<Integer> ids = new ArrayList<Integer>();
+		ResultSet rs = dbConnection.createStatement().executeQuery(
+				"SELECT id FROM document where dataset_id = " + datasetId);
+
+		while (rs.next()) {
+			ids.add(rs.getInt("id"));
+		}
+		return ids;
 	}
 
 	public Article getWikipediaConcept(int conceptId) {
 		return null;
 	}
 
-	public void addWikipediaConcept(Article concept) {
+	private PreparedStatement insertWikipediaConceptStmt;
+
+	public void addWikipediaConcept(Article concept) throws SQLException {
+		if (insertWikipediaConceptStmt == null)
+			insertWikipediaConceptStmt = dbConnection
+					.prepareStatement("insert into wikipedia_concept (id, name, url, tags) values (?, ?, ?, ?)");
+
+		insertWikipediaConceptStmt.setInt(1, concept.indexId);
+		insertWikipediaConceptStmt.setString(2, concept.name);
+		insertWikipediaConceptStmt.setString(3, concept.url);
+		insertWikipediaConceptStmt.setString(4,
+				Utils.implode(concept.tags, "|"));
+		insertWikipediaConceptStmt.executeUpdate();
 	}
 
 	public Map<String, Float> getTermAnnotations(int docId, int method) {
 		return null;
 	}
 
+	private PreparedStatement insertTermAnnotationsStmt;
+
 	public void addTermAnnotations(Map<String, Float> annotations, int docId,
-			int method) {
+			int method) throws SQLException {
+
+		if (insertTermAnnotationsStmt == null)
+			insertTermAnnotationsStmt = dbConnection
+					.prepareStatement("insert into term_annotation (doc_id, term, weight, method) values (?,?,?,?)");
+
+		for (Entry<String, Float> term : annotations.entrySet()) {
+			insertTermAnnotationsStmt.setInt(1, docId);
+			insertTermAnnotationsStmt.setString(2, term.getKey());
+			insertTermAnnotationsStmt.setFloat(3, term.getValue());
+			insertTermAnnotationsStmt.setInt(4, method);
+			insertTermAnnotationsStmt.executeUpdate();
+		}
+
 	}
 
 	public Map<Integer, Float> getConceptAnnotations(int docId, int method) {
 		return null;
 	}
 
+	private PreparedStatement insertSemanticsStmt;
+
 	public void addConceptAnnotations(Map<Integer, Float> annotations,
-			int docId, int method) {
+			int docId, int method) throws SQLException {
+
+		if (insertSemanticsStmt == null)
+			insertSemanticsStmt = dbConnection
+					.prepareStatement("insert into semantic_annotation (document, concept_id, weight, method) values (?, ?, ?, ?)");
+
+		for (Entry<Integer, Float> concept : annotations.entrySet()) {
+			insertSemanticsStmt.setInt(1, docId);
+			insertSemanticsStmt.setInt(2, concept.getKey());
+			insertSemanticsStmt.setFloat(3, concept.getValue());
+			insertSemanticsStmt.setInt(4, method);
+			insertSemanticsStmt.executeUpdate();
+		}
 	}
 
 }
