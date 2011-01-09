@@ -12,6 +12,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -28,6 +29,7 @@ public class WikipediaSearcher {
 	private QueryParser queryParser;
 
 	public WikipediaSearcher() {
+		BooleanQuery.setMaxClauseCount(1024 * 100);
 		try {
 			directory = FSDirectory.open(new File(
 					WikipediaIndexer.WIKIPEDIA_INDEX_PATH));
@@ -53,7 +55,9 @@ public class WikipediaSearcher {
 
 		try {
 			text = QueryParser.escape(text);
+
 			Query query = queryParser.parse(text);
+
 			TopDocs hits = indexSearcher.search(query, 100);
 			ScoreDoc[] scoreDocs = hits.scoreDocs;
 

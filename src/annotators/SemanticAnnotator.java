@@ -36,6 +36,7 @@ public class SemanticAnnotator {
 		int numDocs = datasetReader.getNumDocs();
 
 		for (int i = 0; i < numDocs; i++) {
+			System.out.println(i);
 			DatasetDocument doc = datasetReader.getDocument(i);
 			List<Article> matchingArticles = wikipediaSearcher.search(doc
 					.getText());
@@ -49,7 +50,8 @@ public class SemanticAnnotator {
 		}
 	}
 
-	public static void main(String[] args) throws CorruptIndexException, SQLException, IOException {
+	public static void main(String[] args) throws CorruptIndexException,
+			SQLException, IOException {
 		new SemanticAnnotator(Datasets_Methods.JORDANIAN_UMASS_LIGHT_STEMMER)
 				.annotateDataset();
 	}

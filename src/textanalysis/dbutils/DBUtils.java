@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,6 +17,7 @@ import textanalysis.wikipediaindex.Article;
 import utils.Utils;
 
 import dataset.DatasetDocument;
+import dataset.Datasets;
 
 public class DBUtils {
 
@@ -58,10 +60,11 @@ public class DBUtils {
 		addDocStmt.executeUpdate();
 	}
 
-	public List<Integer> getDatasetDocs(int datasetId) throws SQLException {
+	public List<Integer> getDatasetDocs(Datasets dataset) throws SQLException {
 		List<Integer> ids = new ArrayList<Integer>();
 		ResultSet rs = dbConnection.createStatement().executeQuery(
-				"SELECT id FROM document where dataset_id = " + datasetId);
+				"SELECT id FROM document where dataset_id = "
+						+ dataset.datasetId);
 
 		while (rs.next()) {
 			ids.add(rs.getInt("id"));
@@ -69,8 +72,24 @@ public class DBUtils {
 		return ids;
 	}
 
-	public Article getWikipediaConcept(int conceptId) {
-		return null;
+	private PreparedStatement getWikipediaConcept;
+
+	public Article getWikipediaConcept(int conceptId) throws SQLException {
+		if (getWikipediaConcept == null)
+			getWikipediaConcept = dbConnection
+					.prepareStatement("SELECT name, url, tags FROM wikipedia_concept where id = ?");
+
+		getWikipediaConcept.setInt(1, conceptId);
+		ResultSet rs = getWikipediaConcept.executeQuery();
+		if (!rs.next())
+			return null;
+
+		Article article = new Article();
+		article.name = rs.getString("name");
+		article.url = rs.getString("url");
+		article.tags = rs.getString("tags").split("|");
+		article.indexId = conceptId;
+		return article;
 	}
 
 	private PreparedStatement insertWikipediaConceptStmt;
@@ -88,8 +107,22 @@ public class DBUtils {
 		insertWikipediaConceptStmt.executeUpdate();
 	}
 
-	public Map<String, Float> getTermAnnotations(int docId, int method) {
-		return null;
+	private PreparedStatement getTermAnnotations;
+
+	public Map<String, Float> getTermAnnotations(int docId, int method)
+			throws SQLException {
+		if (getTermAnnotations == null)
+			getTermAnnotations = dbConnection
+					.prepareStatement("SELECT term, weight FROM term_annotation where doc_id = ? and method = ?");
+
+		getTermAnnotations.setInt(1, docId);
+		getTermAnnotations.setInt(2, method);
+		ResultSet rs = getTermAnnotations.executeQuery();
+		Map<String, Float> annotations = new HashMap<String, Float>();
+		while (rs.next()) {
+			annotations.put(rs.getString("term"), rs.getFloat("weight"));
+		}
+		return annotations;
 	}
 
 	private PreparedStatement insertTermAnnotationsStmt;
@@ -111,8 +144,22 @@ public class DBUtils {
 
 	}
 
-	public Map<Integer, Float> getConceptAnnotations(int docId, int method) {
-		return null;
+	private PreparedStatement getConceptAnnotations;
+
+	public Map<String, Float> getConceptAnnotations(int docId, int method)
+			throws SQLException {
+		if (getConceptAnnotations == null)
+			getConceptAnnotations = dbConnection
+					.prepareStatement("SELECT concept_id, weight FROM semantic_annotation where document = ? and method = ?");
+		getConceptAnnotations.setInt(1, docId);
+		getConceptAnnotations.setInt(2, method);
+		ResultSet rs = getConceptAnnotations.executeQuery();
+		Map<String, Float> annotations = new HashMap<String, Float>();
+		while (rs.next()) {
+			annotations
+					.put(rs.getInt("concept_id") + "", rs.getFloat("weight"));
+		}
+		return annotations;
 	}
 
 	private PreparedStatement insertSemanticsStmt;
@@ -131,6 +178,58 @@ public class DBUtils {
 			insertSemanticsStmt.setInt(4, method);
 			insertSemanticsStmt.executeUpdate();
 		}
+	}
+
+	private PreparedStatement getCatDocsStmt;
+
+	public List<Integer> getCategoryDocuments(Datasets dataset, String category)
+			throws SQLException {
+		if (getCatDocsStmt == null)
+			getCatDocsStmt = dbConnection
+					.prepareStatement("SELECT id FROM document where dataset_id = ? and category = ?");
+
+		getCatDocsStmt.setInt(1, dataset.datasetId);
+		getCatDocsStmt.setString(2, category);
+
+		ResultSet rs = getCatDocsStmt.executeQuery();
+		List<Integer> docs = new ArrayList<Integer>();
+
+		while (rs.next()) {
+			docs.add(rs.getInt("id"));
+		}
+		return docs;
+	}
+
+	private PreparedStatement getDsCatsStmt;
+
+	public List<String> getDatasetCategories(Datasets dataset)
+			throws SQLException {
+		if (getDsCatsStmt == null)
+			getDsCatsStmt = dbConnection
+					.prepareStatement("SELECT distinct category FROM document where dataset_id = ?");
+
+		getDsCatsStmt.setInt(1, dataset.datasetId);
+		ResultSet rs = getDsCatsStmt.executeQuery();
+		List<String> cats = new ArrayList<String>();
+		while (rs.next()) {
+			cats.add(rs.getString("category"));
+		}
+		return cats;
+	}
+
+	private PreparedStatement getDocCatStmt;
+
+	public String getDocumentCategory(int docId) throws SQLException {
+		if (getDocCatStmt == null)
+			getDocCatStmt = dbConnection
+					.prepareStatement("SELECT category FROM document where id = ?");
+
+		getDocCatStmt.setInt(1, docId);
+		ResultSet rs = getDocCatStmt.executeQuery();
+		if (!rs.next())
+			return null;
+
+		return rs.getString("category");
 	}
 
 }
