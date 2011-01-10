@@ -25,7 +25,7 @@ public class TermBasedAnnotator {
 
 	public void annotateDataset() throws SQLException, IOException,
 			ParseException {
-		List<Integer> ids = dbUtils.getDatasetDocs(datasetMethod.method);
+		List<Integer> ids = dbUtils.getDatasetDocs(datasetMethod.dataset);
 
 		int numDocs = datasetReader.getNumDocs();
 
@@ -38,7 +38,7 @@ public class TermBasedAnnotator {
 
 	public static void main(String[] args) throws SQLException, IOException,
 			ParseException {
-		new TermBasedAnnotator(Datasets_Methods.JORDANIAN_UMASS_LIGHT_STEMMER)
+		new TermBasedAnnotator(Datasets_Methods.JORDANIAN_KHOJA_ROOT_STEMMER)
 				.annotateDataset();
 	}
 }

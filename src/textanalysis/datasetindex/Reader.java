@@ -1,10 +1,8 @@
 package textanalysis.datasetindex;
 
 import java.io.File;
-
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -71,6 +69,7 @@ public class Reader {
 			String term = termFreqVector.getTerms()[i];
 			if (term.length() == 0)
 				continue;
+			//System.out.println(term);
 			int tf = termFreqVector.getTermFrequencies()[i];
 			sumDocFreqs += tf;
 			float idf = getIDF(term);
@@ -103,11 +102,6 @@ public class Reader {
 		return idf;
 	}
 
-	public List<DatasetDocument> getCategoryDocuments(String category) {
-		// TODO
-		return null;
-	}
-
 	public void close() {
 		try {
 			indexReader.close();
@@ -120,7 +114,11 @@ public class Reader {
 	public static void main(String[] args) throws CorruptIndexException,
 			IOException, ParseException {
 		// testing
-		Reader r = new Reader("jordanian-light-lucene-stemmer");
-		System.out.println(r.getDocument(25).getText());;
+		Reader r = new Reader("jordanian_khoja_root_stemmer");
+		System.out.println(r.getNumDocs());
+		Map<String, Float> ann = r.getDocumentFeatureVector(0);
+		for(Map.Entry<String, Float> term: ann.entrySet()){
+			System.out.println(term.getValue()+" "+term.getKey());
+		}
 	}
 }

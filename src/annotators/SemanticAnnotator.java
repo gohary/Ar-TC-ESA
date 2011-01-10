@@ -31,7 +31,7 @@ public class SemanticAnnotator {
 
 	public void annotateDataset() throws SQLException, CorruptIndexException,
 			IOException {
-		List<Integer> ids = dbUtils.getDatasetDocs(datasetMethod.method);
+		List<Integer> ids = dbUtils.getDatasetDocs(datasetMethod.dataset);
 
 		int numDocs = datasetReader.getNumDocs();
 
@@ -52,7 +52,7 @@ public class SemanticAnnotator {
 
 	public static void main(String[] args) throws CorruptIndexException,
 			SQLException, IOException {
-		new SemanticAnnotator(Datasets_Methods.JORDANIAN_UMASS_LIGHT_STEMMER)
+		new SemanticAnnotator(Datasets_Methods.JORDANIAN_KHOJA_ROOT_STEMMER)
 				.annotateDataset();
 	}
 }

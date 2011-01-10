@@ -25,10 +25,12 @@ public class ArabicKhojaRootStemmer {
 	}
 
 	public int stem(char s[], int len) {
-		String word = new String(s);
-		String stem = stemmer.stemWord(word);
+
+		String word = new String(s, 0, len);
+		String stem = stemmer.stemWord(word);		
 		int stemLen = stem.length();
 		System.arraycopy(stem.toCharArray(), 0, s, 0, stemLen);
 		return stemLen;
+
 	}
 }

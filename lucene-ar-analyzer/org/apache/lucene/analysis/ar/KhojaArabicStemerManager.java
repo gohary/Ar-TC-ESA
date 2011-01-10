@@ -52,7 +52,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Vector;
 
-
 //TODO
 @SuppressWarnings("all")
 public class KhojaArabicStemerManager {
@@ -85,8 +84,7 @@ public class KhojaArabicStemerManager {
 	private boolean strangeWordFound = false;
 	private boolean rootNotFound = false;
 	private boolean fromSuffixes = false;
-	private String[][] stemmedDocument;
-	private String[][] possibleRoots;
+
 	private int wordNumber = 0;
 	private int stemmedWordsNumber = 0;
 	private int notStemmedWordsNumber = 0;
@@ -111,12 +109,6 @@ public class KhojaArabicStemerManager {
 
 		// clone the static files
 		staticFiles = (Vector) statFiles.clone();
-
-		// create the statistics file array
-		stemmedDocument = new String[10000][3];
-
-		// create the possible roots array
-		possibleRoots = new String[10000][2];
 
 		// read the contents of the file, one line at a time
 		// after each line stem the words
@@ -163,11 +155,6 @@ public class KhojaArabicStemerManager {
 
 	// --------------------------------------------------------------------------
 
-	// return the stemmed document
-	public String[][] returnStatistics() {
-		return stemmedDocument;
-	}
-
 	// --------------------------------------------------------------------------
 
 	// return the lists
@@ -178,13 +165,6 @@ public class KhojaArabicStemerManager {
 		listsVector.addElement(listOriginalStopword);
 		listsVector.addElement(listStopwordsFound);
 		return listsVector;
-	}
-
-	// --------------------------------------------------------------------------
-
-	// Method return the possible roots
-	public String[][] returnPossibleRoots() {
-		return possibleRoots;
 	}
 
 	// --------------------------------------------------------------------------
@@ -241,30 +221,12 @@ public class KhojaArabicStemerManager {
 					currentWord = tokenizedLine.elementAt(i).toString();
 
 					// store the original word in the array stemmedDocument
-					stemmedDocument[wordNumber][0] = currentWord;
 
 					// stem the word
 					currentWord = formatWord(currentWord, i);
 
 					// if the word wasn't stemmed, indicate this in
 					// stemmedDocument
-					if (stemmedDocument[wordNumber][2] == null) {
-						stemmedDocument[wordNumber][1] = currentWord;
-						stemmedDocument[wordNumber][2] = "NOT STEMMED";
-						notStemmedWordsNumber++;
-						listNotStemmedWords.addElement(currentWord);
-					} else if (number > 0) {
-						number--;
-						while (number > 0
-								&& possibleRoots[number][0] == stemmedDocument[wordNumber][0]) {
-							number--;
-						}
-						if (number == 0
-								&& possibleRoots[number][0] == stemmedDocument[wordNumber][0])
-							number = 0;
-						else
-							number++;
-					}
 
 					// increment wordNumber
 					wordNumber++;
@@ -705,10 +667,9 @@ public class KhojaArabicStemerManager {
 		if (root.length() == 0) {
 			if (((Vector) staticFiles.elementAt(16)).contains(word)) {
 				rootFound = true;
-				stemmedDocument[wordNumber][1] = word;
-				stemmedDocument[wordNumber][2] = "ROOT";
+
 				stemmedWordsNumber++;
-				listStemmedWords.addElement(stemmedDocument[wordNumber][0]);
+
 				listRootsFound.addElement(word);
 				if (rootNotFound) {
 					for (int i = 0; i < number; i++)
@@ -722,10 +683,9 @@ public class KhojaArabicStemerManager {
 		// check for the root that we just derived
 		else if (((Vector) staticFiles.elementAt(16)).contains(root)) {
 			rootFound = true;
-			stemmedDocument[wordNumber][1] = root;
-			stemmedDocument[wordNumber][2] = "ROOT";
+
 			stemmedWordsNumber++;
-			listStemmedWords.addElement(stemmedDocument[wordNumber][0]);
+
 			listRootsFound.addElement(word);
 			if (rootNotFound) {
 				for (int i = 0; i < number; i++)
@@ -737,12 +697,10 @@ public class KhojaArabicStemerManager {
 		}
 
 		if (root.length() == 3) {
-			possibleRoots[number][1] = root;
-			possibleRoots[number][0] = stemmedDocument[wordNumber][0];
+
 			number++;
 		} else {
-			possibleRoots[number][1] = word;
-			possibleRoots[number][0] = stemmedDocument[wordNumber][0];
+
 			number++;
 		}
 		return word;
@@ -756,10 +714,7 @@ public class KhojaArabicStemerManager {
 		if (((Vector) staticFiles.elementAt(12)).contains(word)) {
 			rootFound = true;
 
-			stemmedDocument[wordNumber][1] = word;
-			stemmedDocument[wordNumber][2] = "ROOT";
 			stemmedWordsNumber++;
-			listStemmedWords.addElement(stemmedDocument[wordNumber][0]);
 			listRootsFound.addElement(word);
 		}
 	}
@@ -850,14 +805,10 @@ public class KhojaArabicStemerManager {
 		for (int i = 0; i < currentWord.length(); i++) {
 			if (Character.isLetter(currentWord.charAt(i))) {
 				modifiedWord.append(currentWord.charAt(i));
-				stemmedDocument[wordNumber][2] = null;
+
 			} else {
 				nonLetterFound = true;
-				if (modifiedWord.length() == 0
-						&& stemmedDocument[wordNumber][2] == null) {
-					stemmedDocument[wordNumber][2] = "NOT LETTER";
-					notWordNumber++;
-				}
+
 			}
 		}
 		return nonLetterFound;
@@ -876,10 +827,8 @@ public class KhojaArabicStemerManager {
 			// root was found, so set variable
 			rootFound = true;
 
-			stemmedDocument[wordNumber][1] = word;
-			stemmedDocument[wordNumber][2] = "ROOT";
 			stemmedWordsNumber++;
-			listStemmedWords.addElement(stemmedDocument[wordNumber][0]);
+
 			listRootsFound.addElement(word);
 
 			return word;
@@ -903,10 +852,8 @@ public class KhojaArabicStemerManager {
 			// root was found, so set variable
 			rootFound = true;
 
-			stemmedDocument[wordNumber][1] = word;
-			stemmedDocument[wordNumber][2] = "ROOT";
 			stemmedWordsNumber++;
-			listStemmedWords.addElement(stemmedDocument[wordNumber][0]);
+
 			listRootsFound.addElement(word);
 
 			return word;
@@ -921,10 +868,8 @@ public class KhojaArabicStemerManager {
 			// root was found, so set variable
 			rootFound = true;
 
-			stemmedDocument[wordNumber][1] = word;
-			stemmedDocument[wordNumber][2] = "ROOT";
 			stemmedWordsNumber++;
-			listStemmedWords.addElement(stemmedDocument[wordNumber][0]);
+
 			listRootsFound.addElement(word);
 
 			return word;
@@ -939,10 +884,8 @@ public class KhojaArabicStemerManager {
 			// root was found, so set variable
 			rootFound = true;
 
-			stemmedDocument[wordNumber][1] = word;
-			stemmedDocument[wordNumber][2] = "ROOT";
 			stemmedWordsNumber++;
-			listStemmedWords.addElement(stemmedDocument[wordNumber][0]);
+
 			listRootsFound.addElement(word);
 
 			return word;
@@ -957,10 +900,8 @@ public class KhojaArabicStemerManager {
 			// root was found, so set variable
 			rootFound = true;
 
-			stemmedDocument[wordNumber][1] = word;
-			stemmedDocument[wordNumber][2] = "ROOT";
 			stemmedWordsNumber++;
-			listStemmedWords.addElement(stemmedDocument[wordNumber][0]);
+
 			listRootsFound.addElement(word);
 
 			return word;
@@ -983,10 +924,8 @@ public class KhojaArabicStemerManager {
 			// root was found, so set variable
 			rootFound = true;
 
-			stemmedDocument[wordNumber][1] = word;
-			stemmedDocument[wordNumber][2] = "ROOT";
 			stemmedWordsNumber++;
-			listStemmedWords.addElement(stemmedDocument[wordNumber][0]);
+
 			listRootsFound.addElement(word);
 
 			return word;
@@ -1001,10 +940,8 @@ public class KhojaArabicStemerManager {
 			// root was found, so set variable
 			rootFound = true;
 
-			stemmedDocument[wordNumber][1] = word;
-			stemmedDocument[wordNumber][2] = "ROOT";
 			stemmedWordsNumber++;
-			listStemmedWords.addElement(stemmedDocument[wordNumber][0]);
+
 			listRootsFound.addElement(word);
 
 			return word;
@@ -1029,10 +966,8 @@ public class KhojaArabicStemerManager {
 			// root was found, so set variable
 			rootFound = true;
 
-			stemmedDocument[wordNumber][1] = word;
-			stemmedDocument[wordNumber][2] = "ROOT";
 			stemmedWordsNumber++;
-			listStemmedWords.addElement(stemmedDocument[wordNumber][0]);
+
 			listRootsFound.addElement(word);
 
 			return word;
@@ -1049,10 +984,8 @@ public class KhojaArabicStemerManager {
 			// root was found, so set variable
 			rootFound = true;
 
-			stemmedDocument[wordNumber][1] = word;
-			stemmedDocument[wordNumber][2] = "ROOT";
 			stemmedWordsNumber++;
-			listStemmedWords.addElement(stemmedDocument[wordNumber][0]);
+
 			listRootsFound.addElement(word);
 
 			return word;
@@ -1075,14 +1008,10 @@ public class KhojaArabicStemerManager {
 		for (int i = 0; i < currentWord.length(); i++) {
 			if (!(punctuations.contains(currentWord.substring(i, i + 1)))) {
 				modifiedWord.append(currentWord.charAt(i));
-				stemmedDocument[wordNumber][2] = null;
+
 			} else {
 				punctuationFound = true;
-				if (modifiedWord.length() == 0
-						&& stemmedDocument[wordNumber][2] == null) {
-					stemmedDocument[wordNumber][2] = "PUNCTUATION";
-					punctuationWordNumber++;
-				}
+
 			}
 		}
 
@@ -1115,11 +1044,8 @@ public class KhojaArabicStemerManager {
 		Vector v = (Vector) staticFiles.elementAt(13);
 
 		if (stopwordFound = v.contains(currentWord)) {
-			stemmedDocument[wordNumber][1] = currentWord;
-			stemmedDocument[wordNumber][2] = "STOPWORD";
 			stopwordNumber++;
 			listStopwordsFound.addElement(currentWord);
-			listOriginalStopword.addElement(stemmedDocument[wordNumber][0]);
 
 		}
 		return stopwordFound;
@@ -1132,11 +1058,8 @@ public class KhojaArabicStemerManager {
 		Vector v = (Vector) staticFiles.elementAt(18);
 
 		if (strangeWordFound = v.contains(currentWord)) {
-			stemmedDocument[wordNumber][1] = currentWord;
-			stemmedDocument[wordNumber][2] = "STRANGEWORD";
 			stopwordNumber++;
 			listStopwordsFound.addElement(currentWord);
-			listOriginalStopword.addElement(stemmedDocument[wordNumber][0]);
 
 		}
 		return strangeWordFound;

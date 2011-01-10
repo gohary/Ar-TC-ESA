@@ -19,7 +19,7 @@ import org.apache.lucene.util.Version;
 
 public class WikipediaIndexer {
 
-	final static String WIKIPEDIA_INDEX_PATH = "resources/indexes/wikipedia";
+	final static String WIKIPEDIA_INDEX_PATH = "resources/indexes/wikipedia-khoja-root";
 	private final static String WIKIPEDIA_DUMP_APTH = "resources/ar-wikipedia/ar-wiki-dump";
 
 	private Directory directory;
@@ -109,7 +109,7 @@ public class WikipediaIndexer {
 				article.content = contentBuilder.toString();
 				return article;
 			}
-
+			
 			contentBuilder.append(line);
 		} while (true);
 

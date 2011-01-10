@@ -18,7 +18,7 @@ public class Loader {
 	public static void main(String[] args) throws IOException, SQLException {
 
 		DatasetIndexer indexer = new DatasetIndexer(
-				Datasets_Methods.JORDANIAN_UMASS_LIGHT_STEMMER.indexName);
+				Datasets_Methods.JORDANIAN_KHOJA_ROOT_STEMMER.indexName);
 
 		Map<String, String> categoryDocuments = new HashMap<String, String>();
 
